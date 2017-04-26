@@ -12,40 +12,53 @@ import {
   Text,
   TextInput
 } from 'react-native'
+import { connect } from 'react-redux'
 
 import InputBox from '../components/InputBox'
+import Header from './Header'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-export default class Home extends Component {
+import { translate } from '../actions/dictionary'
+
+class Home extends Component {
+  constructor (props) {
+    super(props)
+    this.translateText = this.translateText.bind(this)
+  }
+
+  translateText (text) {
+    this.props.translate(text)
+  }
+
   render () {
+    const { translatedText } = this.props
     return (
       <View style={styles.container}>
-        <View style={styles.flags}>
-          <Text>
-            Flagi
-          </Text>
-        </View>
         <KeyboardAwareScrollView>
+          <Header />
+          { translatedText
+            ? (<View style={styles.textContent}>
+              <Text style={{color: "white"}}>
+                {translatedText}
+              </Text>
+            </View>)
+            : null
+          }
           <View style={styles.inputs}>
-            <InputBox />
-            <View style={{width: '80%', height: 35, backgroundColor: '#01579B', borderRadius: 10}} />
-            <InputBox />
+            <InputBox
+              translateText={this.translateText} />
           </View>
           <View style={styles.footer}>
-            <View style={{width: '80%', height: 35, backgroundColor: 'white', borderRadius: 10}}>
-              <TextInput
-                multiline
-                numberOfLines={4}
-                style={{width: '100%', height: '100%'}}
-                onChangeText={() => {}}
-                value={'value'}
-              />
-            </View>
-            <View style={{width: '80%', height: 35, backgroundColor: 'green', borderRadius: 10}} />
           </View>
         </KeyboardAwareScrollView>
       </View>
     )
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    translatedText: state.dictionary.translatedText
   }
 }
 
@@ -55,9 +68,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#E1F5FE',
-    paddingTop: 50,
-    paddingBottom: 30
+    backgroundColor: '#E1F5FE'
 
   },
   flags: {
@@ -72,11 +83,18 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   footer: {
-    flex: 1,
+    flex: 0.25,
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%'
+  },
+  textContent: {
+    backgroundColor: 'black',
+    minHeight: 50,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center'
   }
 })
 
-AppRegistry.registerComponent('TranslateIT', () => TranslateIT)
+export default connect(mapStateToProps, {translate})(Home)
